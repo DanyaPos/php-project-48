@@ -25,7 +25,6 @@ function genDiff($firstFile, $secondFile)
       if (!array_key_exists($key, $first)) {
         $rezult .= "  + {$key} : ". toString($value) . "\n";
       }
-    
   }
   $rezult .= "}\n";
   return $rezult;
