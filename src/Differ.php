@@ -25,7 +25,7 @@ function form($str)
 function toString($value)
 {
     if (is_bool($value)) {
-        return var_export($value, true);  // Convert true/false to string
+        return var_export($value, true);  // Преобразуем true/false в строку
     }
     return $value;
 }
@@ -35,17 +35,32 @@ function generateCommonDifferences(array $first, array $second): string
     $result = '';
     foreach ($first as $key => $value) {
         if (array_key_exists($key, $second)) {
-            if ($value === $second[$key]) {
-                $result .= "    {$key} : " . toString($value) . "\n";
-            } else {
-                $result .= "  - {$key} : " . toString($value) . "\n";
-                $result .= "  + {$key} : " . toString($second[$key]) . "\n";
-            }
+            $result .= compareValues($key, $value, $second[$key]);
         } else {
-            $result .= "  - {$key} : " . toString($value) . "\n";
+            $result .= removeKey($key, $value);
         }
     }
     return $result;
+}
+
+function compareValues(string $key, $firstValue, $secondValue): string
+{
+    if ($firstValue === $secondValue) {
+        return "    {$key} : " . toString($firstValue) . "\n";
+    }
+    return changeKey($key, $firstValue, $secondValue);
+}
+
+function changeKey(string $key, $firstValue, $secondValue): string
+{
+    $result = "  - {$key} : " . toString($firstValue) . "\n";
+    $result .= "  + {$key} : " . toString($secondValue) . "\n";
+    return $result;
+}
+
+function removeKey(string $key, $value): string
+{
+    return "  - {$key} : " . toString($value) . "\n";
 }
 
 function generateUniqueDifferences(array $first, array $second): string
