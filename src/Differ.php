@@ -4,42 +4,57 @@ namespace Differ\Differ;
 
 function genDiff($firstFile, $secondFile)
 {
-  $first = form($firstFile);
-  $second = form($secondFile);
-  $rezult = "{\n";
-  foreach ($first as $key=>$value){
-    if (array_key_exists($key, $second)){
-      if ($value === $second[$key]){
-        $rezult .= "    {$key} : ". toString($value) . "\n";
-      } else {
-        $rezult .= "  - {$key} : ". toString($value) . "\n";
-        $rezult .= "  + {$key} : ". toString($second[$key]) . "\n";
-      }
-    } else {
-      $rezult .= "  - {$key} : ". toString($value) . "\n";
-    }
-    }
-    foreach ($second as $key => $value) {
-      if (!array_key_exists($key, $first)) {
-        $rezult .= "  + {$key} : ". toString($value) . "\n";
-      }
-  }
-  $rezult .= "}\n";
-  return $rezult;
-};
+    $first = form($firstFile);
+    $second = form($secondFile);
+    $result = "{\n";
+
+    $result .= generateCommonDifferences($first, $second);
+    $result .= generateUniqueDifferences($first, $second);
+    
+    $result .= "}\n";
+    return $result;
+}
 
 function form($str)
 {
-  $rezult = json_decode(file_get_contents($str), $associative = true);
-  ksort($rezult);
-  return $rezult;
-};
-
+    $result = json_decode(file_get_contents($str), true);
+    ksort($result);
+    return $result;
+}
 
 function toString($value)
 {
     if (is_bool($value)) {
-        return var_export($value, true);  // Преобразуем true/false в строку
+        return var_export($value, true);  // Convert true/false to string
     }
     return $value;
-};
+}
+
+function generateCommonDifferences(array $first, array $second): string
+{
+    $result = '';
+    foreach ($first as $key => $value) {
+        if (array_key_exists($key, $second)) {
+            if ($value === $second[$key]) {
+                $result .= "    {$key} : " . toString($value) . "\n";
+            } else {
+                $result .= "  - {$key} : " . toString($value) . "\n";
+                $result .= "  + {$key} : " . toString($second[$key]) . "\n";
+            }
+        } else {
+            $result .= "  - {$key} : " . toString($value) . "\n";
+        }
+    }
+    return $result;
+}
+
+function generateUniqueDifferences(array $first, array $second): string
+{
+    $result = '';
+    foreach ($second as $key => $value) {
+        if (!array_key_exists($key, $first)) {
+            $result .= "  + {$key} : " . toString($value) . "\n";
+        }
+    }
+    return $result;
+}
