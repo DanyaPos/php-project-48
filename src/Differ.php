@@ -4,10 +4,8 @@ namespace Differ\Differ;
 
 function genDiff($firstFile, $secondFile)
 {
-  $first = json_decode(file_get_contents($firstFile), $associative = true);
-  $second = json_decode(file_get_contents($secondFile), $associative = true);
-  ksort($first);
-  ksort($second);
+  $first = form($firstFile);
+  $second = form($secondFile);
   $rezult = "{\n";
   foreach ($first as $key=>$value){
     if (array_key_exists($key, $second)){
@@ -30,6 +28,13 @@ function genDiff($firstFile, $secondFile)
   return $rezult;
 };
 
+function form($str)
+{
+  $rezult = json_decode(file_get_contents($str), $associative = true);
+  ksort($rezult);
+  return $rezult;
+};
+
 
 function toString($value)
 {
@@ -37,4 +42,4 @@ function toString($value)
         return var_export($value, true);  // Преобразуем true/false в строку
     }
     return $value;
-}
+};
